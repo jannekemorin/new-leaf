@@ -9,8 +9,7 @@ Use http://viz-js.com/ to view digraph output
 import ast
 import re
 import astunparse
-import graphviz
-# import pygraphviz
+import pygraphviz
 
 class CFGNode(dict):
     registry = 0
@@ -71,7 +70,7 @@ class CFGNode(dict):
             for i in ['if', 'while', 'for', 'elif']:
                 v = re.sub(r'^_%s:' % i, '%s:' % i, v)
             return v
-        G = graphviz.AGraph(directed=True)
+        G = pygraphviz.AGraph(directed=True)
         cov_lines = set(i for i,j in arcs)
         for nid, cnode in CFGNode.cache.items():
             G.add_node(cnode.rid)

@@ -1,0 +1,22 @@
+strict digraph "" {
+	node [label="\N"];
+	0	[label="0: start"];
+	8	[label="0: stop"];
+	0 -> 8;
+	1	[label="1: enter: search(x, seq)"];
+	3	[label="2: for: (True if enumerate(seq) else False)"];
+	1 -> 3;
+	7	[label="5: return len(seq)"];
+	3 -> 7;
+	4	[label="2: (i, e) = enumerate(seq).shift()"];
+	3 -> 4;
+	2	[label="1: exit: search(x, seq)"];
+	6	[label="4: return i"];
+	6 -> 2;
+	7 -> 2;
+	5	[label="3: if: (x < e)"];
+	4 -> 5;
+	5 -> 3;
+	5 -> 6;
+}
+
