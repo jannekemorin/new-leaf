@@ -12,6 +12,11 @@ def convert(fileName):
     # Open the file
     file = open(fileName)
     lines = file.readlines()
+    length = 0
+    for line in lines:
+        if len(line.strip()) != 0:
+            # print("Line: " + line)
+            length += 1
 
     # Two cases: 
     # 1) The line instantiates a node
@@ -30,7 +35,7 @@ def convert(fileName):
     for node in node_list:
         dict[node[0]] = node[1].split(":")[0][-1]
     all_values = dict.values()
-    length = int(max(all_values))
+    # length = int(max(all_values))
     for i in range(length + 1): #+1 to account for the 0 start/stop lines
         neighbor_list.append([])
 
@@ -67,6 +72,7 @@ def convert(fileName):
     # outFile = open("prologOutput.pl", "w")
     # outFile.write(prolog_graph)
     # outFile.close()
+    returnList = []
     for i in range(length):
-        print("reachable({0}, {1}, V).".format((i+1), prolog_graph))
-
+        returnList.append("reachable({0}, {1}, V).".format((i+1), prolog_graph))
+    return returnList
