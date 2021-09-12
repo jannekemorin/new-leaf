@@ -88,7 +88,6 @@ for i in range(length):
 print(coverageFileList)
 print(coverageList)
 
-'''
 # Use the diff command to get the results of each test case
 passed_count = 0
 failed_count = 0
@@ -96,8 +95,8 @@ testCaseResults = []
 for i in range(len(testcaseList)):
     #print(len(testcaseList))
     #print("i: " + str(i))
-    actual_result_file = open("data/question_1/testcase_output/wrong_1_001" + "/output_" + threeDig(i + 1) + ".txt")
-    expected_result_file = open("data/question_1/ans/output_" + threeDig(i + 1) + ".txt")
+    actual_result_file = open("testCases/actualOutputs/output_" + threeDig(i + 1) + ".txt")
+    expected_result_file = open("testCases/expectedOutputs/output_" + threeDig(i + 1) + ".txt")
     actual_result = str(actual_result_file.read().rstrip())
     expected_result = str(expected_result_file.read().rstrip())
     # lst = []
@@ -112,27 +111,27 @@ for i in range(len(testcaseList)):
         #print("test case " + threeDig(i + 1) + " failed")
         testCaseResults.append(0)
         failed_count += 1
+print(testCaseResults)
 
 # See which lines it executed and build up a list
-# What happens if there are empty lines?
+# ---What happens if there are empty lines?
 for i in range(len(coverageFileList)):
     curr_file = open(coverageFileList[i])
     lines = curr_file.readlines()
     lines = [x.strip() for x in lines]
     lines = [x.strip() for x in lines if x != '']
+    print("len of lines: " + str(len(lines)))
     j = 0
-    while (j != length - 1):
-        for line in lines:
-            #print(line)
-            if (line != "\n") and (not ">>>>>>" in line):
-                if testCaseResults[i] == 1: # passed
-                    coverageList[j][0] = coverageList[j][0] + 1
-                else:                       # failed
-                    coverageList[j][1] = coverageList[j][1] + 1 
-                j += 1
-            elif line != "\n":
-                j += 1
-#print(coverageList)
+    for line in lines:
+        print("j: " + str(j))
+        print("line: " + line)
+        if (line != "\n") and (not ">>>>>>" in line):
+            if testCaseResults[i] == 1: # passed
+                coverageList[j][0] = coverageList[j][0] + 1
+            else:                       # failed
+                coverageList[j][1] = coverageList[j][1] + 1 
+        j+=1
+# print(coverageList)
 
 # Calculate suspiciousness score and place it in the third index
 #print("failed count: " + str(failed_count))
@@ -159,4 +158,4 @@ for command in plCommandList:
     result = prolog.query(command)
     for test in result:
         reachability_list.append(list(set(test['V'])))
-print(reachability_list)'''
+print(reachability_list)
