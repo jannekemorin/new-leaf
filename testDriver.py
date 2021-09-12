@@ -1,8 +1,12 @@
 import os
-import importlib.util
+# import importlib.util
 import sys
 import trace
 import cfg2Prolog
+
+dir = 'testCases/coverageReports'
+for f in os.listdir(dir):
+    os.remove(os.path.join(dir, f))
 
 # Create correct file name from input
 filename = str(input("Enter the name of the file you would like to analyze: "))
@@ -18,7 +22,7 @@ output = stream.readlines()
 plCommandList = cfg2Prolog.convert("cfgs/text/" + filename.split(".")[0] + ".txt")
 for i in range(len(plCommandList)):
     plCommandList[i] = plCommandList[i].rstrip()
-    # print("output: " + str(plCommandList[i]))
+    print("output: " + str(plCommandList[i]))
 
 # Move the png file generated
 os.rename(("testFiles/" + filename + ".png"), ("cfgs/images/" + filename + ".png"))
@@ -123,8 +127,8 @@ for i in range(len(coverageFileList)):
     print("len of lines: " + str(len(lines)))
     j = 0
     for line in lines:
-        print("j: " + str(j))
-        print("line: " + line)
+        # print("j: " + str(j))
+        # print("line: " + line)
         if (line != "\n") and (not ">>>>>>" in line):
             if testCaseResults[i] == 1: # passed
                 coverageList[j][0] = coverageList[j][0] + 1
@@ -149,13 +153,16 @@ for i in range(len(coverageList)):
         coverageList[i][2] = num/denom
 print(coverageList)
 
+'''
 # Run Prolog queries on resulting file
 reachability_list = []
 from pyswip import Prolog
 prolog = Prolog()
 for command in plCommandList:
+    print("command: " + command)
     #print(command)
     result = prolog.query(command)
+    print("result: " + result)
     for test in result:
         reachability_list.append(list(set(test['V'])))
-print(reachability_list)
+print("reachability list: " + reachability_list)'''

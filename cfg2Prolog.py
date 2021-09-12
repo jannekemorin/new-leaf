@@ -22,20 +22,21 @@ def convert(fileName):
     # 1) The line instantiates a node
     index = 1
     if lines[0].rstrip() == "strict digraph \"\" {":
-        index = 2
+        index = 3
     for line in lines[index:]:
         if line.find("[") != -1:
             line_split = line.split("[")
             line_split[0] = line_split[0].strip()
             line_split[1] = line_split[1][:-3]
             node_list.append(line_split)
+    print("node list: " + str(node_list))
 
     # Create dictionary from node_list
     dict = {}
     for node in node_list:
         dict[node[0]] = node[1].split(":")[0][-1]
     all_values = dict.values()
-    # length = int(max(all_values))
+    print("all values: " + str(all_values))
     for i in range(length + 1): #+1 to account for the 0 start/stop lines
         neighbor_list.append([])
 
@@ -60,7 +61,7 @@ def convert(fileName):
     #     node_edge_list.append(str(dict[node_list[i][0]]) + "-" + str(neighbor_list[i]))
     # prolog_graph = "[" + ', '.join(node_edge_list) + "]"
 
-    for i in range(len(neighbor_list)):
+    for i in range(length):
         node_edge_list.append(str(i) + "-" + str(neighbor_list[i]))
     prolog_graph = "[" + ', '.join(node_edge_list) + "]"
         
