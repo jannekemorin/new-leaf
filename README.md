@@ -1,7 +1,7 @@
 # new-leaf
 A new beginning!
 
-### Depdencies
+### Dependencies
 * Please install the following packages:
   * astunparse
   * pyswip
