@@ -4,6 +4,7 @@ import sys
 import trace
 import cfg2Prolog
 
+# Remove all coverage reports when rerunning the program
 dir = 'testCases/coverageReports'
 for f in os.listdir(dir):
     os.remove(os.path.join(dir, f))
@@ -14,15 +15,19 @@ function = input("Enter the name of the function you would like to test: ")
 exec("from testFiles." + filename.split(".")[0]+ " import " + function)             # import function from file
 command = "python dependencies/pycfg-0.1/pycfg/pycfg.py testFiles/" + filename + " -d 2> cfgs/text/" + filename.split(".")[0] + ".txt"
 
+# Remove cfg images so they can be overwritten
+if os.path.exists("cfgs/images/" + filename + ".png"):
+    os.remove("cfgs/images/" + filename + ".png")
+
 # Create control flow graph (CFG) utilizing the pycfg-0.1 package
 stream = os.popen(command)
 output = stream.readlines()
 
 # Convert the CFG to a list of Prolog reachability queries
-plCommandList = cfg2Prolog.convert("cfgs/text/" + filename.split(".")[0] + ".txt")
+plCommandList = cfg2Prolog.convert(filename)
 for i in range(len(plCommandList)):
     plCommandList[i] = plCommandList[i].rstrip()
-    print("output: " + str(plCommandList[i]))
+    # print("output: " + str(plCommandList[i]))
 
 # Move the png file generated
 os.rename(("testFiles/" + filename + ".png"), ("cfgs/images/" + filename + ".png"))
@@ -48,14 +53,12 @@ def threeDig(i):
 #-------------------------------------
 
 # Create a list containing the names of the test case files
-list = os.listdir("testCases/inputs") # dir is your directory path
-number_files = len(list)
+dirList = os.listdir("testCases/inputs") # dir is your directory path
+number_files = len(dirList)
 testcaseList = []
 for i in range(1, number_files + 1):
     testcaseList.append("testCases/inputs/input_" + threeDig(i) + ".txt")
     # print(testcaseList[i - 1])
-
-os.remove("cfgs/images/wrong_1_001.py.png")
 
 # Run each test case on the faulty program and save results
 for i in range(len(testcaseList)): 
@@ -89,8 +92,8 @@ for i in range(1, number_files + 1):
     coverageFileList.append("testCases/coverageReports/output_" + threeDig(i) + "_cover.txt")
 for i in range(length):
     coverageList.append([0, 0, 0])
-print(coverageFileList)
-print(coverageList)
+# print(coverageFileList)
+# print(coverageList)
 
 # Use the diff command to get the results of each test case
 passed_count = 0
@@ -115,7 +118,7 @@ for i in range(len(testcaseList)):
         #print("test case " + threeDig(i + 1) + " failed")
         testCaseResults.append(0)
         failed_count += 1
-print(testCaseResults)
+print("Test case results: " + str(testCaseResults))
 
 # See which lines it executed and build up a list
 # ---What happens if there are empty lines?
@@ -124,7 +127,6 @@ for i in range(len(coverageFileList)):
     lines = curr_file.readlines()
     lines = [x.strip() for x in lines]
     lines = [x.strip() for x in lines if x != '']
-    print("len of lines: " + str(len(lines)))
     j = 0
     for line in lines:
         # print("j: " + str(j))
@@ -151,18 +153,16 @@ for i in range(len(coverageList)):
         coverageList[i][2] = 0
     else:
         coverageList[i][2] = num/denom
-print(coverageList)
+print("Coverage list: " + str(coverageList))
 
-'''
 # Run Prolog queries on resulting file
 reachability_list = []
 from pyswip import Prolog
 prolog = Prolog()
 for command in plCommandList:
-    print("command: " + command)
-    #print(command)
+    print("Command: " + command)
     result = prolog.query(command)
-    print("result: " + result)
+    # print("Result: " + str(result))
     for test in result:
         reachability_list.append(list(set(test['V'])))
-print("reachability list: " + reachability_list)'''
+print("Reachability list: " + str(reachability_list))

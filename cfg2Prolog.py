@@ -10,10 +10,13 @@ def convert(fileName):
     # Create variable for number of lines
 
     # Open the file
-    file = open(fileName)
+    file = open("cfgs/text/" + fileName.split(".")[0] + ".txt")
     lines = file.readlines()
+
+    # Get the length of the original program
+    faulty_program = open("testFiles/" + fileName)
     length = 0
-    for line in lines:
+    for line in faulty_program.readlines():
         if len(line.strip()) != 0:
             # print("Line: " + line)
             length += 1
@@ -29,14 +32,14 @@ def convert(fileName):
             line_split[0] = line_split[0].strip()
             line_split[1] = line_split[1][:-3]
             node_list.append(line_split)
-    print("node list: " + str(node_list))
+    # print("node list: " + str(node_list))
 
     # Create dictionary from node_list
     dict = {}
     for node in node_list:
         dict[node[0]] = node[1].split(":")[0][-1]
     all_values = dict.values()
-    print("all values: " + str(all_values))
+    # print("all values: " + str(all_values))
     for i in range(length + 1): #+1 to account for the 0 start/stop lines
         neighbor_list.append([])
 
@@ -61,7 +64,8 @@ def convert(fileName):
     #     node_edge_list.append(str(dict[node_list[i][0]]) + "-" + str(neighbor_list[i]))
     # prolog_graph = "[" + ', '.join(node_edge_list) + "]"
 
-    for i in range(length):
+    # print("length: " + str(length))
+    for i in range(1, length + 1):
         node_edge_list.append(str(i) + "-" + str(neighbor_list[i]))
     prolog_graph = "[" + ', '.join(node_edge_list) + "]"
         
