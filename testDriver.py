@@ -3,6 +3,8 @@ import os
 import sys
 import trace
 import cfg2Prolog
+import datetime
+import time
 
 # Remove all coverage reports when rerunning the program
 dir = 'testCases/coverageReports'
@@ -161,8 +163,9 @@ from pyswip import Prolog
 prolog = Prolog()
 for command in plCommandList:
     print("Command: " + command)
+    start = time.process_time()
     result = prolog.query(command)
-    # print("Result: " + str(result))
+    print("time: " + str(time.process_time() - start))
     for test in result:
         reachability_list.append(list(set(test['V'])))
 print("Reachability list: " + str(reachability_list))
