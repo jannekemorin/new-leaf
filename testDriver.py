@@ -31,7 +31,7 @@ output = stream.readlines()
 
 #-------------------------------------
 # Convert the CFG to a list of Prolog reachability queries
-plCommandList = cfg2Prolog.convert(filename)
+plCommandList = cfg2Prolog.convert2PL(filename)
 for i in range(len(plCommandList)):
     plCommandList[i] = plCommandList[i].rstrip()
     if DEBUG:
@@ -157,6 +157,7 @@ for i in range(len(coverageFileList)):
 
 #-------------------------------------
 # Calculate suspiciousness score and place it in the third index
+suspiciousnessList = []
 if DEBUG:
     print("failed count: " + str(failed_count))
 if DEBUG:
@@ -170,8 +171,13 @@ for i in range(len(coverageList)):
     denom = (coverageList[i][1])/(failed_count + coverageList[i][0])/(passed_count)
     if denom == 0:
         coverageList[i][2] = 0
+        suspiciousnessList.append(0)
     else:
         coverageList[i][2] = num/denom
+        suspiciousnessList.append(num/denom)
+
+pythonGraph = cfg2Prolog.convert2Python(filename, suspiciousnessList)
+print(pythonGraph)
 print("Coverage list: " + str(coverageList))
 
 #-------------------------------------
@@ -183,7 +189,8 @@ for command in plCommandList:
     print("Command: " + command)
     start = time.process_time()
     result = prolog.query(command)
-    print("time: " + str(time.process_time() - start))
+    print("Time: " + str(time.process_time() - start))
+    print("------------------------------------------------")
     for test in result:
         reachability_list.append(list(set(test['V'])))
 print("Reachability list: " + str(reachability_list))
