@@ -2,6 +2,7 @@
 # See here for more documentation: https://www.swi-prolog.org/pldoc/man?predicate=reachable/3
 import sys
 import networkx as nx
+from networkx.algorithms.community.centrality import girvan_newman
 
 def convert2PL(fileName):
     # Create list of nodes
@@ -145,11 +146,27 @@ def convert2Python(fileName, suspiciousnessList):
             G.add_edge(i, neighbor_list[i][j])
 
     # Test statements to view the lists of nodes and neighbors
-    print(list(G.nodes))
-    print(list(G.edges))
+    print("Original nodes: ", list(G.nodes))
+    print("Original edges: ", list(G.edges))
 
     # Use line_graph function to swap nodes and edges
     L = nx.line_graph(G)
-    print(list(L.nodes))
-    print(list(L.edges))
+    print("Line graph nodes: ", list(L.nodes))
+    print("Line graph edges: ", list(L.edges))
+    print("------------------------------------------------")
     # How to carry over suspiciousness score???
+
+    F = nx.DiGraph()
+    F.add_nodes_from(L)
+    finalEdges = []
+    for i in list(L.edges):
+        print(i + (suspiciousnessList[i[0][1]-1],))
+        finalEdges.append(i + (suspiciousnessList[i[0][1]-1],))
+        #print(i)
+        #print(i[0][1])
+    print("------------------------------------------------")
+    F.add_weighted_edges_from(finalEdges)
+    communities = girvan_newman(F)
+    print("COMMUNITIES: ")
+    print(tuple(sorted(c) for c in next(communities)))
+    print("------------------------------------------------")
