@@ -1,36 +1,39 @@
 import networkx as nx
 from networkx.algorithms.community.centrality import girvan_newman
 '''
-Helper program which converts coverage reports produced by pycfg to Prolog or Python graphs
+Helper program which converts control flow graph files produced by pycfg to Prolog or Python graphs
 and returns pertinent fault localization information.
 '''
 
-def convert2PL(fileName):
+def convert2Prolog(fileName):
     '''
-    Convert2PL returns a list of Prolog reachability queries which tell us how nodes (statements)
+    Convert2Prolog returns a list of Prolog reachability queries which tell us how nodes (statements)
     are connected. The Prolog graph used to produced these queries should be a list of vertices in 
     the vertex-[neighbors] pair form. See here for more documentation: 
     https://www.swi-prolog.org/pldoc/man?predicate=reachable/3
     '''
+    #--------------------------------------------------------------------
     # Create list of nodes
-    node_list = []
+    nodeList = []
     # Create list of neighbors for each node
-    neighbor_list = []
+    neighborList = []
     # Create variable for number of lines
 
+    #--------------------------------------------------------------------
     # Open the file
     file = open("cfgs/text/" + fileName.split(".")[0] + ".txt")
     lines = file.readlines()
 
-    # Get the length of the original program
-    faulty_program = open("testFiles/" + fileName)
+    #--------------------------------------------------------------------
+    # Get the length (number of lines) of the original program
+    faultyProgram = open("testFiles/" + fileName)
     length = 0
-    for line in faulty_program.readlines():
+    for line in faultyProgram.readlines():
         if len(line.strip()) != 0:
-            # print("Line: " + line)
             length += 1
 
-    # Two cases: 
+    #--------------------------------------------------------------------
+    # Address each line appropriately for the matching case:
     # 1) The line instantiates a node
     index = 1
     if lines[0].rstrip() == "strict digraph \"\" {":
@@ -40,18 +43,17 @@ def convert2PL(fileName):
             line_split = line.split("[")
             line_split[0] = line_split[0].strip()
             line_split[1] = line_split[1][:-3]
-            node_list.append(line_split)
-    # print("node list: " + str(node_list))
+            nodeList.append(line_split)
 
-    # Create dictionary from node_list
+    # Create dictionary from nodeList
     dict = {}
-    for node in node_list:
+    for node in nodeList:
         dict[node[0]] = node[1].split(":")[0][-1]
     all_values = dict.values()
-    # print("all values: " + str(all_values))
     for i in range(length + 1): #+1 to account for the 0 start/stop lines
-        neighbor_list.append([])
+        neighborList.append([])
 
+    #--------------------------------------------------------------------
     #  2) The line instantiates an edge
     for line in lines[1:]:
         line_split = line.split()
@@ -59,59 +61,51 @@ def convert2PL(fileName):
             # Edges start at 0...
             node1 = int(dict[line_split[0]])
             node2 = int(dict[line_split[2][:-1]])  # the -1 removes the semicolon at the end...
-            #print("node1orig", line_split[0], " node1: ", node1, "node2orig: ", line_split[2][:-1], "node2: ", node2)
-            neighbor_list[node1].append(node2)
+            neighborList[node1].append(node2)
 
-    # Format the output to a Prolog list
-    # List of node-[neighbors]
+   #--------------------------------------------------------------------
+   # Create a list which will hold a string representation of each node-[its neighbors]
     node_edge_list = []
-    # for i in range(len(node_list)):
-    #     print(node_list[i][0])
-    #     print(str(dict[node_list[i][0]]))
-    #     print(neighbor_list[i])
-    #     print("---------------")
-    #     node_edge_list.append(str(dict[node_list[i][0]]) + "-" + str(neighbor_list[i]))
-    # prolog_graph = "[" + ', '.join(node_edge_list) + "]"
-
-    # print("length: " + str(length))
     for i in range(1, length + 1):
-        node_edge_list.append(str(i) + "-" + str(neighbor_list[i]))
+        node_edge_list.append(str(i) + "-" + str(neighborList[i]))
     prolog_graph = "[" + ', '.join(node_edge_list) + "]"
-        
-    # Test statements to view the lists of nodes and neighbors
-    #print(node_list)
-    #print(neighbor_list)
-
-    # # Write the Prolog list to a new file
-    # outFile = open("prologOutput.pl", "w")
-    # outFile.write(prolog_graph)
-    # outFile.close()
+    
+    #--------------------------------------------------------------------
+    # Create a list of Prolog queries to return
     returnList = []
     for i in range(length):
         returnList.append("reachable({0}, {1}, V).".format((i+1), prolog_graph))
     return returnList
 
-#-------------------------------------
+
+
 def convert2Python(fileName, suspiciousnessList):
+    '''
+    Convert2Python creates a networkx Python graph and returns its fault localization information such
+    as communities.
+    '''
+    #--------------------------------------------------------------------
     # Create list of nodes
-    node_list = []
+    nodeList = []
     # Create list of neighbors for each node
-    neighbor_list = []
+    neighborList = []
     # Create variable for number of lines
 
+    #--------------------------------------------------------------------
     # Open the file
     file = open("cfgs/text/" + fileName.split(".")[0] + ".txt")
     lines = file.readlines()
 
-    # Get the length of the original program
-    faulty_program = open("testFiles/" + fileName)
+    #--------------------------------------------------------------------
+    # Get the length (number of lines) of the original program
+    faultyProgram = open("testFiles/" + fileName)
     length = 0
-    for line in faulty_program.readlines():
+    for line in faultyProgram.readlines():
         if len(line.strip()) != 0:
-            # print("Line: " + line)
             length += 1
 
-    # Two cases: 
+    #--------------------------------------------------------------------
+    # Address each line appropriately for the matching case:
     # 1) The line instantiates a node
     index = 1
     if lines[0].rstrip() == "strict digraph \"\" {":
@@ -121,18 +115,17 @@ def convert2Python(fileName, suspiciousnessList):
             line_split = line.split("[")
             line_split[0] = line_split[0].strip()
             line_split[1] = line_split[1][:-3]
-            node_list.append(line_split)
-    # print("node list: " + str(node_list))
+            nodeList.append(line_split)
 
-    # Create dictionary from node_list
+    # Create dictionary from nodeList
     dict = {}
-    for node in node_list:
+    for node in nodeList:
         dict[node[0]] = node[1].split(":")[0][-1]
     all_values = dict.values()
-    # print("all values: " + str(all_values))
     for i in range(length + 1): #+1 to account for the 0 start/stop lines
-        neighbor_list.append([])
+        neighborList.append([])
 
+    #--------------------------------------------------------------------
     #  2) The line instantiates an edge
     for line in lines[1:]:
         line_split = line.split()
@@ -140,32 +133,36 @@ def convert2Python(fileName, suspiciousnessList):
             # Edges start at 0...
             node1 = int(dict[line_split[0]])
             node2 = int(dict[line_split[2][:-1]])  # the -1 removes the semicolon at the end...
-            #print("node1orig", line_split[0], " node1: ", node1, "node2orig: ", line_split[2][:-1], "node2: ", node2)
-            neighbor_list[node1].append(node2)
+            neighborList[node1].append(node2)
 
+    #--------------------------------------------------------------------
     # Format the output to a Python graph
     G = nx.DiGraph()
     node_edge_list = []
     for i in range(1, length + 1):
         G.add_nodes_from([(i, {"Suspiciousness": suspiciousnessList[i-1]})])
     for i in range(1, length + 1):
-        for j in range(len(neighbor_list[i])):
-            G.add_edge(i, neighbor_list[i][j])
+        for j in range(len(neighborList[i])):
+            G.add_edge(i, neighborList[i][j])
 
-    # Test statements to view the lists of nodes and neighbors
+    #--------------------------------------------------------------------
+    # Output the lists of nodes and neighbors
     print("Nodes: ", list(G.nodes))
     print("Edges: ", list(G.edges))
 
-    # Weight edges based on first node
+    #--------------------------------------------------------------------
+    # Weight edges based on the first node in the directed Edge
     F = nx.DiGraph()
     F.add_nodes_from(G)
-
     print("Edges with weights attached: ")
     finalEdges = []
     for i in list(G.edges):
         print(i + (suspiciousnessList[i[0]-1],))
         finalEdges.append(i + (suspiciousnessList[i[0]-1],))
     F.add_weighted_edges_from(finalEdges)
+
+    #--------------------------------------------------------------------
+    # Output Girvan Newman communities
     communities = girvan_newman(F)
     print("\nGirvan Newman Communities: ")
     print(tuple(sorted(c) for c in next(communities)))

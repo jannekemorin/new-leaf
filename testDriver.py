@@ -42,7 +42,7 @@ output = stream.readlines()
 
 #--------------------------------------------------------------------
 # Convert the CFG to a list of Prolog reachability queries
-plCommandList = cfgConverter.convert2PL(filename)
+plCommandList = cfgConverter.convert2Prolog(filename)
 for i in range(len(plCommandList)):
     plCommandList[i] = plCommandList[i].rstrip()
 
