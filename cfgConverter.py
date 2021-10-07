@@ -1,10 +1,17 @@
-# The Prolog graph should be a list of vertices in the vertex-[neighbors] pair form 
-# See here for more documentation: https://www.swi-prolog.org/pldoc/man?predicate=reachable/3
-import sys
 import networkx as nx
 from networkx.algorithms.community.centrality import girvan_newman
+'''
+Helper program which converts coverage reports produced by pycfg to Prolog or Python graphs
+and returns pertinent fault localization information.
+'''
 
 def convert2PL(fileName):
+    '''
+    Convert2PL returns a list of Prolog reachability queries which tell us how nodes (statements)
+    are connected. The Prolog graph used to produced these queries should be a list of vertices in 
+    the vertex-[neighbors] pair form. See here for more documentation: 
+    https://www.swi-prolog.org/pldoc/man?predicate=reachable/3
+    '''
     # Create list of nodes
     node_list = []
     # Create list of neighbors for each node
@@ -146,27 +153,19 @@ def convert2Python(fileName, suspiciousnessList):
             G.add_edge(i, neighbor_list[i][j])
 
     # Test statements to view the lists of nodes and neighbors
-    print("Original nodes: ", list(G.nodes))
-    print("Original edges: ", list(G.edges))
+    print("Nodes: ", list(G.nodes))
+    print("Edges: ", list(G.edges))
 
-    # Use line_graph function to swap nodes and edges
-    L = nx.line_graph(G)
-    print("Line graph nodes: ", list(L.nodes))
-    print("Line graph edges: ", list(L.edges))
-    print("------------------------------------------------")
-    # How to carry over suspiciousness score???
-
+    # Weight edges based on first node
     F = nx.DiGraph()
-    F.add_nodes_from(L)
+    F.add_nodes_from(G)
+
+    print("Edges with weights attached: ")
     finalEdges = []
-    for i in list(L.edges):
-        print(i + (suspiciousnessList[i[0][1]-1],))
-        finalEdges.append(i + (suspiciousnessList[i[0][1]-1],))
-        #print(i)
-        #print(i[0][1])
-    print("------------------------------------------------")
+    for i in list(G.edges):
+        print(i + (suspiciousnessList[i[0]-1],))
+        finalEdges.append(i + (suspiciousnessList[i[0]-1],))
     F.add_weighted_edges_from(finalEdges)
     communities = girvan_newman(F)
-    print("COMMUNITIES: ")
+    print("\nGirvan Newman Communities: ")
     print(tuple(sorted(c) for c in next(communities)))
-    print("------------------------------------------------")
