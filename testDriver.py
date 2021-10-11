@@ -144,7 +144,7 @@ for i in range(len(coverageList)):
         suspiciousnessList.append(num/denom)
 
 pythonGraph = cfgConverter.convert2Python(filename, suspiciousnessList)
-print("\mCoverage list: " + str(coverageList))
+print("\nCoverage list: " + str(coverageList))
 
 #--------------------------------------------------------------------
 # Run Prolog queries on resulting file

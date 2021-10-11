@@ -1,5 +1,7 @@
 import networkx as nx
 from networkx.algorithms.community.centrality import girvan_newman
+from networkx import edge_betweenness_centrality as betweenness
+import community as community_louvain
 '''
 Helper program which converts control flow graph files produced by pycfg to Prolog or Python graphs
 and returns pertinent fault localization information.
@@ -163,6 +165,27 @@ def convert2Python(fileName, suspiciousnessList):
 
     #--------------------------------------------------------------------
     # Output Girvan Newman communities
-    communities = girvan_newman(F)
+    # Incorporates edge weights when choosing the edge with the highest betweenness centrality
+    def most_central_edge(G):
+        centrality = betweenness(G, weight="weight")
+        return max(centrality, key=centrality.get)
+    communities = girvan_newman(F, most_valuable_edge=most_central_edge)
     print("\nGirvan Newman Communities: ")
     print(tuple(sorted(c) for c in next(communities)))
+
+    #--------------------------------------------------------------------
+    # Output Louvain communities
+    # We need to convert the directed graph to an undirected graph to do so...
+    U = F.to_undirected()
+
+    # Build a list of communities
+    #print("U: " + str(U.get_edge_data(2, 5)))
+    partition = community_louvain.best_partition(U)
+    communityList = []
+    count = 0
+    for com in set(partition.values()) :
+        count = count + 1.
+        listNodes = [nodes for nodes in partition.keys() if partition[nodes] == com]
+        communityList.append(listNodes)
+    print("\nLouvain Communities: \n" + str(communityList))
+        
