@@ -2,11 +2,22 @@
 A new beginning!
 
 ### Dependencies
-* Please install the following packages:
-  * astunparse
-  * pyswip
-  * pygraphviz
-  * SWI Prolog (ensure the bit version matches your python installation)
+* Please utilize the following commands for dependency installations:
+  * pip install networkx
+  * pip install community
+  * pip install astunparse
+  * pip install python-louvain
+  * pip install --upgrade decorator==5.0.9
+  * pip install pyswip
+  * conda install -c alubbock pygraphviz
+  * dot -c
+  
+* You will also need to download the following applications:
+  * Anaconda
+  * Visual Studio C++ Tools
+  * SWI-Prolog
+    * Be sure the version (64-bit versus 32-bit) matches your Python installation
+    * Be sure to add swipl/bin to your path
   
 ### Directions
 1. Place the program you would like to test in the testFiles folder

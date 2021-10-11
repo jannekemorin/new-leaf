@@ -3,6 +3,7 @@ import sys
 import trace
 import cfgConverter
 import time
+from pathlib import Path
 '''
 Driver program which (1) asks the user for input of a program file name and function name
 then, (2) runs the appropriate test cases and outputs suspiciousness metrics dervied from
@@ -47,8 +48,9 @@ for i in range(len(plCommandList)):
     plCommandList[i] = plCommandList[i].rstrip()
 
 #--------------------------------------------------------------------
-# Move the png CFG generated to the designated folder
-os.rename(("testFiles/" + filename + ".png"), ("cfgs/images/" + filename + ".png"))
+# Move the graphical CFG generated to the designated folder
+if Path("testFiles/" + filename + ".png").is_file():
+    os.rename(("testFiles/" + filename + ".png"), ("cfgs/images/" + filename + ".png"))
 
 #--------------------------------------------------------------------
 # Open the program and count the number of lines
