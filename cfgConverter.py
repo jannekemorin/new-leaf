@@ -2,9 +2,14 @@ import networkx as nx
 from networkx.algorithms.community.centrality import girvan_newman
 from networkx import edge_betweenness_centrality as betweenness
 import community as community_louvain
+import matplotlib.pyplot as plt
+from networkx.generators.duplication import partial_duplication_graph
 '''
 Helper program which converts control flow graph files produced by pycfg to Prolog or Python graphs
 and returns pertinent fault localization information.
+
+Code for coloring nodes based on community was inspired by:
+https://stackoverflow.com/questions/50828284/networkx-specifying-colors-to-communities-nodes-in-a-graph
 '''
 
 def convert2Prolog(fileName):
@@ -164,6 +169,16 @@ def convert2Python(fileName, suspiciousnessList):
     F.add_weighted_edges_from(finalEdges)
 
     #--------------------------------------------------------------------
+    # Print ranked suspiciousness list
+    print("Ranked suspiciousness list: ")
+    lineScoreList = []
+    for i in range(len(suspiciousnessList)):
+        lineScoreList.append([i + 1, suspiciousnessList[i]])
+    lineScoreList.sort(reverse=True, key=lambda x: x[1])
+    for i in range(len(lineScoreList)):
+        print("Line: " + str(lineScoreList[i][0]) + ", " + str(lineScoreList[i][1]))
+
+    #--------------------------------------------------------------------
     # Output Girvan Newman communities
     # Incorporates edge weights when choosing the edge with the highest betweenness centrality
     def most_central_edge(G):
@@ -171,7 +186,19 @@ def convert2Python(fileName, suspiciousnessList):
         return max(centrality, key=centrality.get)
     communities = girvan_newman(F, most_valuable_edge=most_central_edge)
     print("\nGirvan Newman Communities: ")
-    print(tuple(sorted(c) for c in next(communities)))
+    # Fix positions for each node
+    pos = nx.spring_layout(F) 
+    # Draw the initial graph
+    nx.draw(F, pos, edge_color='k',  with_labels=True,
+            font_weight='light', node_size= 280, width= 0.9)
+    # Draw the nodes of each community with a new color
+    i = 0
+    colorList = ['y', 'r', 'g']
+    for lst in tuple(sorted(c) for c in next(communities)):
+        print(lst)
+        nx.draw_networkx_nodes(F, pos, nodelist=lst, node_color=colorList[i])
+        i += 1
+    plt.show()
 
     #--------------------------------------------------------------------
     # Output Louvain communities
@@ -187,5 +214,17 @@ def convert2Python(fileName, suspiciousnessList):
         count = count + 1.
         listNodes = [nodes for nodes in partition.keys() if partition[nodes] == com]
         communityList.append(listNodes)
-    print("\nLouvain Communities: \n" + str(communityList))
-        
+    print("\nLouvain Communities:")
+    # Fix positions for each node
+    pos = nx.spring_layout(F) 
+    # Draw the initial graph
+    nx.draw(F, pos, edge_color='k',  with_labels=True,
+            font_weight='light', node_size= 280, width= 0.9)
+    # Draw the nodes of each community with a new color
+    i = 0
+    colorList = ['y', 'r', 'g']
+    for lst in communityList:
+        print(lst)
+        nx.draw_networkx_nodes(F, pos, nodelist=lst, node_color=colorList[i])
+        i += 1
+    plt.show()
