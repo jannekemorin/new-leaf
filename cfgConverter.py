@@ -11,6 +11,9 @@ and returns pertinent fault localization information.
 Code for coloring nodes based on community was inspired by:
 https://stackoverflow.com/questions/50828284/networkx-specifying-colors-to-communities-nodes-in-a-graph
 '''
+def roundDict(D):
+    for item in D:
+        D[item] = round(D[item], 2)
 
 def convert2Prolog(fileName):
     '''
@@ -19,6 +22,7 @@ def convert2Prolog(fileName):
     the vertex-[neighbors] pair form. See here for more documentation: 
     https://www.swi-prolog.org/pldoc/man?predicate=reachable/3
     '''
+
     #--------------------------------------------------------------------
     # Create list of nodes
     nodeList = []
@@ -182,7 +186,7 @@ def convert2Python(fileName, suspiciousnessList):
     # Output Girvan Newman communities
     # Incorporates edge weights when choosing the edge with the highest betweenness centrality
     def most_central_edge(G):
-        centrality = betweenness(G, weight="weight")
+        centrality = betweenness(G, weight='weight')
         return max(centrality, key=centrality.get)
     communities = girvan_newman(F, most_valuable_edge=most_central_edge)
     print("\nGirvan Newman Communities: ")
@@ -194,10 +198,33 @@ def convert2Python(fileName, suspiciousnessList):
     # Draw the nodes of each community with a new color
     i = 0
     colorList = ['y', 'r', 'g']
+    labels = nx.get_edge_attributes(F,'weight')
+    roundDict(labels)
+    print("Including weights:")
     for lst in tuple(sorted(c) for c in next(communities)):
         print(lst)
         nx.draw_networkx_nodes(F, pos, nodelist=lst, node_color=colorList[i])
+        nx.draw_networkx_edge_labels(F, pos, edge_labels=labels)
         i += 1
+    plt.savefig('cfgs/images/GNweights')    
+    plt.show()
+
+    # Excludes edge weights when choosing the edge with the highest betweenness centrality
+    F2 = F.copy()
+    communities = girvan_newman(F2)
+    pos = nx.spring_layout(F2) 
+    # Draw the initial graph
+    nx.draw(F2, pos, edge_color='k',  with_labels=True,
+            font_weight='light', node_size= 280, width= 0.9)
+    # Draw the nodes of each community with a new color
+    i = 0
+    colorList = ['y', 'r', 'g']
+    print("Excluding weights:")
+    for lst in tuple(sorted(c) for c in next(communities)):
+        print(lst)
+        nx.draw_networkx_nodes(F2, pos, nodelist=lst, node_color=colorList[i])
+        i += 1
+    plt.savefig('cfgs/images/GNnoWeights')
     plt.show()
 
     #--------------------------------------------------------------------
@@ -205,9 +232,9 @@ def convert2Python(fileName, suspiciousnessList):
     # We need to convert the directed graph to an undirected graph to do so...
     U = F.to_undirected()
 
+    # Incorporates edge weights when choosing the edge with the highest betweenness centrality
     # Build a list of communities
-    #print("U: " + str(U.get_edge_data(2, 5)))
-    partition = community_louvain.best_partition(U)
+    partition = community_louvain.best_partition(U, weight='weight')
     communityList = []
     count = 0
     for com in set(partition.values()) :
@@ -216,15 +243,45 @@ def convert2Python(fileName, suspiciousnessList):
         communityList.append(listNodes)
     print("\nLouvain Communities:")
     # Fix positions for each node
-    pos = nx.spring_layout(F) 
+    pos = nx.spring_layout(U) 
     # Draw the initial graph
-    nx.draw(F, pos, edge_color='k',  with_labels=True,
+    nx.draw(U, pos, edge_color='k',  with_labels=True,
             font_weight='light', node_size= 280, width= 0.9)
     # Draw the nodes of each community with a new color
     i = 0
     colorList = ['y', 'r', 'g']
+    labels = nx.get_edge_attributes(U,'weight')
+    roundDict(labels)
+    print("Including weights:")
     for lst in communityList:
         print(lst)
-        nx.draw_networkx_nodes(F, pos, nodelist=lst, node_color=colorList[i])
+        nx.draw_networkx_nodes(U, pos, nodelist=lst, node_color=colorList[i])
+        nx.draw_networkx_edge_labels(U, pos, edge_labels=labels)
         i += 1
+    plt.savefig('cfgs/images/LWeights')   
+    plt.show()
+
+    # Excludes edge weights when choosing the edge with the highest betweenness centrality
+    U2 = U.copy()
+    partition = community_louvain.best_partition(U2)
+    communityList = []
+    count = 0
+    for com in set(partition.values()) :
+        count = count + 1.
+        listNodes = [nodes for nodes in partition.keys() if partition[nodes] == com]
+        communityList.append(listNodes)
+    # Fix positions for each node
+    pos = nx.spring_layout(U2) 
+    # Draw the initial graph
+    nx.draw(U2, pos, edge_color='k',  with_labels=True,
+            font_weight='light', node_size= 280, width= 0.9)
+    # Draw the nodes of each community with a new color
+    i = 0
+    colorList = ['y', 'r', 'g']
+    print("Excluding weights:")
+    for lst in communityList:
+        print(lst)
+        nx.draw_networkx_nodes(U2, pos, nodelist=lst, node_color=colorList[i])
+        i += 1
+    plt.savefig('cfgs/images/LnoWeights')
     plt.show()
