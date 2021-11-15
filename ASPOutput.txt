@@ -1,0 +1,11 @@
+clingo version 5.5.0
+Reading from crime.lp
+Solving...
+Answer: 1
+edge(1,2) edge(2,3) reachable(2,1) reachable(3,2) reachable(3,1)
+SATISFIABLE
+
+Models       : 1
+Calls        : 1
+Time         : 0.001s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.000s
