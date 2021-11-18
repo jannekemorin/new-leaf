@@ -9,6 +9,7 @@ A new beginning!
   * pip install python-louvain
   * pip install --upgrade decorator==5.0.9
   * pip install pyswip
+  * pip install pycfg
   * conda install -c alubbock pygraphviz
   * dot -c
   
